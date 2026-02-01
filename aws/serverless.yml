@@ -1,0 +1,11 @@
+service: punjaci
+frameworkVersion: "3"
+
+plugins:
+  - serverless-localstack
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: us-east-1
+
