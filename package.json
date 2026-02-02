@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "deploy-website": "npm run build --prefix ./frontend && awslocal s3 sync ./frontend/build/ s3://personal-website"
   },
   "repository": {
     "type": "git",
