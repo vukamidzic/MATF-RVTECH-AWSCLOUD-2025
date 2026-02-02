@@ -1,11 +1,16 @@
 <script lang="ts">
-	import favicon from '$lib/assets/favicon.svg';
-
 	let { children } = $props();
 </script>
 
-<svelte:head>
-	<link rel="icon" href={favicon} />
-</svelte:head>
+<style>
+	#title {
+		text-align: center;
+		top: 0;
+		font-family: 'Times New Roman', Times, serif;
+		font-size: 50px;
+	}
+</style>
+
+<div id='title'>Brew & Bolt</div>
 
 {@render children()}
