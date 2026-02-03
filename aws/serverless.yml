@@ -9,3 +9,12 @@ provider:
   runtime: nodejs18.x
   region: us-east-1
 
+functions:
+  getChargers:
+    handler: functions/getChargers.getChargers
+    description: Returns list of electric chargers
+    events:
+      - http:
+          path: chargers
+          method: get
+          cors: true
