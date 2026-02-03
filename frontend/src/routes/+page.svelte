@@ -44,7 +44,6 @@
     let fetchedData: boolean = $state(false);
     let chargers = $state([]);
     let cafes = $state([]);
-    let selectedCharger;
 
     onMount(async () => {
       try {
@@ -66,14 +65,6 @@
         attribution: '© OpenStreetMap'
       }).addTo(map);
 
-      map.on('click', (e) => {
-        // Only deselect if the click was directly on the map, not a marker
-        if (e.originalEvent.target.id === 'map') {
-          selectedCharger = null;
-          console.log("Selection cleared");
-        }
-      });
-
       var chargerIcon = L.icon({
         iconUrl: "/icons/charger.png",
         iconSize: [25, 25],
@@ -94,8 +85,27 @@
         .bindPopup(popupContent);
 
         marker.on('click', () => {
-          selectedCharger = charger;
-          console.log("Selected charger:", selectedCharger.title);
+          let latlng = marker.getLatLng();
+          fetch(`http://localhost:4566/restapis/sgwa972qvg/dev/_user_request_/cafes?lat=${latlng.lat}&lng=${latlng.lng}`)
+          .then(response => response.json())
+          .then(data => {
+            for (const cafe of data.cafes) {
+              const lat = cafe.lat;
+              const lng = cafe.lon;
+              
+              let coffeeIcon = L.icon({
+                iconUrl: "/icons/coffee.png",
+                iconSize: [25, 25],
+                iconAnchor: [12.5, 25],
+                popupAnchor: [0, -25]
+              });
+            
+              L.marker([lat, lng], { icon: coffeeIcon, zIndexOffset: 1000 })
+              .addTo(map)
+              .bindPopup(`<strong>${cafe.name}</strong>`.trim())
+              .openPopup();
+            }
+          });
         });
       }     
     };

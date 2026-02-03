@@ -11,6 +11,7 @@ provider:
   region: us-east-1
   environment:
     OCM_API_KEY: ${env:OCM_API_KEY}
+    GEOAPIFY_API_KEY: ${env:GEOAPIFY_API_KEY}
     OCM_URL: 'https://api.openchargemap.io/v3/poi'
     CHARGERS_TABLE: Chargers
 
@@ -23,13 +24,21 @@ functions:
           path: chargers
           method: get
           cors: true
+  getCafes:
+    handler: functions/getCafes.getCafes
+    description: Returns list of cafes close to chosen charger
+    events:
+      - http:
+          path: cafes
+          method: get
+          cors: true
   syncOCMdata:
     handler: functions/syncOCM.syncOCM
     description: Sync data from Open Charge Map
     role: SyncOCMRole
     events:
       - schedule:
-          rate: rate(10 minutes)
+          rate: rate(2 minutes)
 
 resources:
   Resources:
