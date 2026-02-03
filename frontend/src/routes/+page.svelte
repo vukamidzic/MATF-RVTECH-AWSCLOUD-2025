@@ -32,26 +32,6 @@
       text-align: center;
       margin-top: -10;
     }
-
-    #find {
-      color: black;
-      box-shadow:10px;
-      background-color: white;
-      font-family: monospace;
-      font-size: 30px;
-      text-align: center;
-      transform: translate(50%, 0%);
-      width: 100px;
-    }
-
-    #find:hover {
-      background-color: grey;
-    }
-
-    #find:active {
-      background-color: black;
-      color: white;
-    }
   </style>
   
   <script lang="ts">
@@ -62,11 +42,13 @@
 
     let map: L.Map | undefined;
     let fetchedData: boolean = $state(false);
-    let chargers = $state([])
+    let chargers = $state([]);
+    let cafes = $state([]);
+    let selectedCharger;
 
     onMount(async () => {
       try {
-        const response = await fetch("http://localhost:4566/restapis/eumfqsktvc/dev/_user_request_/chargers");
+        const response = await fetch("http://localhost:4566/restapis/sgwa972qvg/dev/_user_request_/chargers");
         const data = await response.json();
         chargers = data.chargers;
         fetchedData = true; 
@@ -84,6 +66,14 @@
         attribution: '© OpenStreetMap'
       }).addTo(map);
 
+      map.on('click', (e) => {
+        // Only deselect if the click was directly on the map, not a marker
+        if (e.originalEvent.target.id === 'map') {
+          selectedCharger = null;
+          console.log("Selection cleared");
+        }
+      });
+
       var chargerIcon = L.icon({
         iconUrl: "/icons/charger.png",
         iconSize: [25, 25],
@@ -91,7 +81,6 @@
         popupAnchor: [0, -25]
       });
 
-      // FIX 2: Added 'const' to the loop
       for (const charger of chargers) {
         const popupContent = `
           <strong>${charger.title.toUpperCase()}</strong><br>
@@ -99,10 +88,16 @@
           ${charger.addressLine1 && charger.addressLine2 ? '/' : ''} 
           ${charger.addressLine2 || ''}
           `.trim();
-      
-        L.marker([charger.latitude, charger.longitude], { icon: chargerIcon })
+          
+        const marker = L.marker([charger.latitude, charger.longitude], { icon: chargerIcon })
         .addTo(map)
-        .bindPopup(popupContent);      }
+        .bindPopup(popupContent);
+
+        marker.on('click', () => {
+          selectedCharger = charger;
+          console.log("Selected charger:", selectedCharger.title);
+        });
+      }     
     };
     
     onDestroy(() => { if (map) map.remove(); });
@@ -112,9 +107,6 @@
 
   {#if fetchedData}
     <div id='map'></div>
-    <!-- TODO: Define action (showing cafes near selected charger)  -->
-    <!-- TODO: Center button according to map -->
-    <button id="find">Show</button>
   {:else}
     <div id="loading">
       <Circle duration="1.5s" size="150" color="#FFFFFF" unit="px" />
