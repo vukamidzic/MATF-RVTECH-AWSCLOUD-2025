@@ -1,21 +1,40 @@
+const { DynamoDBClient } = require("@aws-sdk/client-dynamodb");
+const { DynamoDBDocumentClient, ScanCommand } = require("@aws-sdk/lib-dynamodb");
+
+const client = new DynamoDBClient({
+  region: "us-east-1",
+  endpoint: process.env.LOCALSTACK_HOSTNAME 
+    ? `http://${process.env.LOCALSTACK_HOSTNAME}:4566` 
+    : "http://localhost:4566", 
+});
+
+const docClient = DynamoDBDocumentClient.from(client);
+
 exports.getChargers = async () => {
   console.log("getChargers() invoked");
+  
+  const params = { TableName: 'Chargers' };
 
-  return {
-    statusCode: 200,
-    headers: {
-      "Content-Type": "application/json",
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "OPTIONS,GET,POST",
-    },
-    body: JSON.stringify({
-      message: "Successfully retrieved chargers",
-      chargers: [
-        { name: "charger1", lnglat: [44.811531531477875, 20.424087833238755]},
-        { name: "charger2", lnglat: [44.80932586915106, 20.431445811164267]},
-        { name: "charger3", lnglat: [44.822119581665994, 20.418318930583]},
-        { name: "charger4", lnglat: [44.815033634038784, 20.437236922702624]},
-      ],
-    })
-  };
+  try {
+    const data = await docClient.send(new ScanCommand(params));
+    
+    return {
+      statusCode: 200,
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "OPTIONS,GET,POST",
+      },
+      body: JSON.stringify({
+        message: "Successfully retrieved chargers",
+        chargers: data.Items, 
+      }),
+    };
+  } catch (err) {
+    console.error("DynamoDB Error:", err);
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ error: "Could not retrieve chargers" }),
+    };
+  }
 }

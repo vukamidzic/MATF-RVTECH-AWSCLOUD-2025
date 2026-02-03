@@ -1,5 +1,6 @@
 service: punjaci
 frameworkVersion: "3"
+useDotenv: true
 
 plugins:
   - serverless-localstack
@@ -8,6 +9,10 @@ provider:
   name: aws
   runtime: nodejs18.x
   region: us-east-1
+  environment:
+    OCM_API_KEY: ${env:OCM_API_KEY}
+    OCM_URL: 'https://api.openchargemap.io/v3/poi'
+    CHARGERS_TABLE: Chargers
 
 functions:
   getChargers:
@@ -18,3 +23,69 @@ functions:
           path: chargers
           method: get
           cors: true
+  syncOCMdata:
+    handler: functions/syncOCM.syncOCM
+    description: Sync data from Open Charge Map
+    role: SyncOCMRole
+    events:
+      - schedule:
+          rate: rate(10 minutes)
+
+resources:
+  Resources:
+    ChargersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.CHARGERS_TABLE}         		
+        BillingMode: PAY_PER_REQUEST  	
+        AttributeDefinitions:       	
+          - AttributeName: chargerId 	
+            AttributeType: S
+          - AttributeName: town
+            AttributeType: S
+        KeySchema:
+          - AttributeName: chargerId 	
+            KeyType: HASH     		
+        GlobalSecondaryIndexes:     	
+          - IndexName: TownIndex
+            KeySchema:
+              - AttributeName: town 		
+                KeyType: HASH       		
+            Projection:             		
+              ProjectionType: ALL
+    SyncOCMRole:
+      Type: AWS::IAM::Role              
+      Properties:
+        RoleName: syncOCMdata-role-${sls:stage}     
+        AssumeRolePolicyDocument:       
+          Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Principal:
+                Service: lambda.amazonaws.com  
+              Action: sts:AssumeRole
+        Policies:                       
+          - PolicyName: DynamoDBAccess    
+            PolicyDocument:
+              Version: "2012-10-17"
+              Statement:
+                - Effect: Allow         
+                  Action:
+                    - dynamodb:PutItem
+                    - dynamodb:BatchWriteItem
+                    - dynamodb:Scan
+                    - dynamodb:Query
+                    - dynamodb:DeleteItem
+                  Resource:
+                    - !GetAtt ChargersTable.Arn                              
+                    - !Join ['/', [!GetAtt ChargersTable.Arn, 'index/*']]    
+          - PolicyName: CloudWatchLogs    
+            PolicyDocument:
+              Version: "2012-10-17"
+              Statement:
+                - Effect: Allow
+                  Action:
+                    - logs:CreateLogGroup
+                    - logs:CreateLogStream
+                    - logs:PutLogEvents
+                  Resource: "*"
