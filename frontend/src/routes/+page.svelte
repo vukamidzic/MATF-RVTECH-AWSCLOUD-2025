@@ -84,19 +84,25 @@
         attribution: '© OpenStreetMap'
       }).addTo(map);
 
-      const customIcon = L.divIcon({
-        className: 'custom-marker',
-        html: `<div style="background-color: #1631b8; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white;"></div>`,
-        iconSize: [12, 12],
-        iconAnchor: [6, 6]
+      var chargerIcon = L.icon({
+        iconUrl: "/icons/charger.png",
+        iconSize: [25, 25],
+        iconAnchor: [12.5, 25],
+        popupAnchor: [0, -25]
       });
 
       // FIX 2: Added 'const' to the loop
       for (const charger of chargers) {
-        L.marker([charger.latitude, charger.longitude], { icon: customIcon })
+        const popupContent = `
+          <strong>${charger.title.toUpperCase()}</strong><br>
+          ${charger.addressLine1 || ''} 
+          ${charger.addressLine1 && charger.addressLine2 ? '/' : ''} 
+          ${charger.addressLine2 || ''}
+          `.trim();
+      
+        L.marker([charger.latitude, charger.longitude], { icon: chargerIcon })
         .addTo(map)
-        .bindPopup(`Charger ID: ${charger.id || 'Unknown'}`);
-      }
+        .bindPopup(popupContent);      }
     };
     
     onDestroy(() => { if (map) map.remove(); });
