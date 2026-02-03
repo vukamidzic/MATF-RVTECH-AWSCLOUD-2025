@@ -56,37 +56,55 @@
   
   <script lang="ts">
     import { Circle } from 'svelte-loading-spinners';
-    import { onDestroy, tick } from 'svelte';
+    import { onMount, onDestroy } from 'svelte';
     import L from 'leaflet';
     import 'leaflet/dist/leaflet.css';
 
     let map: L.Map | undefined;
-    let isReady: boolean = $state(false);
-    const initMap = async () => {
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      isReady = true;
-    
-      // Wait for Svelte to render the <div id="map">
-      await tick(); 
+    let fetchedData: boolean = $state(false);
+    let chargers = $state([])
 
-      // Point to Belgrade
+    onMount(async () => {
+      try {
+        const response = await fetch("http://localhost:4566/restapis/eumfqsktvc/dev/_user_request_/chargers");
+        const data = await response.json();
+        chargers = data.chargers;
+        fetchedData = true; 
+      
+        // Wait for Svelte to render the #map div after fetchedData becomes true
+        setTimeout(() => { initMap(); }, 0);
+      } catch (e) {
+        console.error("Failed to fetch chargers", e);
+      }
+    });
+      
+    const initMap = async () => {
       map = L.map('map').setView([44.8125, 20.4612], 13);
-    
-      // Add a tile layer
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap'
       }).addTo(map);
-    };
 
-    initMap();
+      const customIcon = L.divIcon({
+        className: 'custom-marker',
+        html: `<div style="background-color: #1631b8; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white;"></div>`,
+        iconSize: [12, 12],
+        iconAnchor: [6, 6]
+      });
+
+      // FIX 2: Added 'const' to the loop
+      for (const charger of chargers) {
+        L.marker([charger.latitude, charger.longitude], { icon: customIcon })
+        .addTo(map)
+        .bindPopup(`Charger ID: ${charger.id || 'Unknown'}`);
+      }
+    };
     
     onDestroy(() => { if (map) map.remove(); });
   </script>
 
   <h2 id="title">Brew & Bolt</h2>
 
-  {#if isReady}
+  {#if fetchedData}
     <div id='map'></div>
     <!-- TODO: Define action (showing cafes near selected charger)  -->
     <!-- TODO: Center button according to map -->
