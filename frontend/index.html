@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+  <head>
+   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+     crossorigin=""/>
+
+   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+     crossorigin=""></script>
+
+   <style>
+     #map {
+      width: 600px;
+      height: 600px;
+     }
+   </style>
+  </head>
+  <body>
+   <div id="map"></div>
+
+
+   <script>
+     // set view on Belgrade
+     var map = L.map('map').setView([44.8125, 20.4612], 13);
+     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+       maxZoom: 19,
+       attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+     }).addTo(map);
+     
+     var chargers = fetch("http://localhost:4566/restapis/odspz2prgh/dev/_user_request_/chargers")
+     .then(response => response.json())
+     .then(data => {
+        for (let charger of data.chargers) {
+          let address = "";
+          if (charger.addressLine1 && !charger.addressLine2) {
+            address = charger.addressLine1;
+          } else if (!charger.addressLine1 && charger.addressLine2) {
+            address = charger.addressLine2;
+          } else {
+            address = `${charger.addressLine1}/${charger.addressLine2}`;
+          }
+
+          L.marker([charger.latitude, charger.longitude])
+          .addTo(map)
+          .bindPopup(`"${charger.title}": ${address}`); 
+        }
+     });     
+   </script>
+  </body>
+</html>
