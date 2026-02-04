@@ -4,10 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "deploy-frontend": " npm run build --prefix ./frontend && awslocal s3 sync ./frontend/build/ s3://brewbolt",
-    "url": "echo \"URL: http://brewbolt.s3-website.localhost.localstack.cloud:4566/\"",   
-    "deploy-all": "npm run deploy --prefix ./aws && npm run -s deploy-frontend"
+    "deploy-backend": "npm run deploy --prefix ./aws",
+    "website-url": "echo \"Website: http://brewbolt.s3-website.localhost.localstack.cloud:4566/\""
   },
   "repository": {
     "type": "git",

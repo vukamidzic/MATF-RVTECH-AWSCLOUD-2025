@@ -1,6 +1,6 @@
 exports.getCafes = async (event) => {
   console.log('Received event:', JSON.stringify(event.queryStringParameters, null, 2));
-  const cafes = await fetch(`https://api.geoapify.com/v2/places?categories=catering.cafe&filter=circle:${event.queryStringParameters.lng},${event.queryStringParameters.lat},3000&apiKey=${process.env.GEOAPIFY_API_KEY}`)
+  const cafes = await fetch(`https://api.geoapify.com/v2/places?categories=catering.cafe&filter=circle:${event.queryStringParameters.lng},${event.queryStringParameters.lat},1000&apiKey=${process.env.GEOAPIFY_API_KEY}`)
   .then(response => response.json())
   .then(data => data.features.map(feature => feature.properties));
 
