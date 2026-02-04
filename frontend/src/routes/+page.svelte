@@ -12,9 +12,9 @@
     .main-container {
       display: flex;
       flex-direction: row;
-      align-items: center; /* Vertical center */
-      justify-content: center; /* Horizontal center */
-      gap: 40px; /* Space between images and map */
+      align-items: center; 
+      justify-content: center; 
+      gap: 40px; 
       margin-top: 20px;
     }
     
@@ -31,17 +31,17 @@
       top: 50%;
       transform: translateY(-50%);
       opacity: 0.8;
-      pointer-events: none; /* Allows clicking "through" images if they overlap */
+      pointer-events: none; 
     }
 
     #left-side-image {
       width: 350px;
-      left: 25px; /* Distance from left edge */
+      left: 25px; 
     }
 
     #right-side-image {
       width: 400px;
-      right: 25px; /* Distance from right edge */
+      right: 25px; 
     }
     
     #loading {
@@ -55,18 +55,20 @@
 
     #title {
       color: white;
-      font-size: 75px;
-      font-family: 'Courier New', Courier, monospace;
+      font-size: 100px;
+      font-family: 'Times New Roman', Times, serif;
       text-align: center;
-      margin-top: -10;
+      top: 0;
     }
   </style>
   
   <script lang="ts">
-    // predefined until better logic implemented
-    let gatewayID = "tqqisptzzc";
+    // Place gateway endpoint ID here
+    let gatewayID = "";
+    
     import { Circle } from 'svelte-loading-spinners';
     import { onMount, onDestroy } from 'svelte';
+    
     import L from 'leaflet';
     import 'leaflet/dist/leaflet.css';
 
@@ -82,7 +84,6 @@
         chargers = data.chargers;
         fetchedData = true; 
       
-        // Wait for Svelte to render the #map div after fetchedData becomes true
         setTimeout(() => { initMap(); }, 0);
       } catch (e) {
         console.error("Failed to fetch chargers", e);

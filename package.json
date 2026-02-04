@@ -6,7 +6,8 @@
   "scripts": {
     "deploy-frontend": " npm run build --prefix ./frontend && awslocal s3 sync ./frontend/build/ s3://brewbolt",
     "deploy-backend": "npm run deploy --prefix ./aws",
-    "website-url": "echo \"Website: http://brewbolt.s3-website.localhost.localstack.cloud:4566/\""
+    "website-url": "echo \"Website URL: http://brewbolt.s3-website.localhost.localstack.cloud:4566/\"",
+    "endpoint-id": "awslocal apigateway get-rest-apis --region us-east-1 --query 'items[0].id' --output text | xargs -I {} echo \"Endpoint ID: {}\""
   },
   "repository": {
     "type": "git",
