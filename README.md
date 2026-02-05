@@ -2,6 +2,13 @@
 Projekat koji služi za pronalazak najbližih kafića u okruženju elektricnog punjača, a čija je
 svrha demonstracija korišćenja osnovnih AWS servisa (lambde, DynamoDB, S3 bucket) u emuliranom Localstack okruženju
 
+## Neophodno za rad
+Pre pokretanja projekta, instalirajte sledeće alate:
+- [Docker](https://www.docker.com/) (i Docker Compose)
+- [Node](https://nodejs.org/)
+- [npm](https://www.npmjs.com/)
+- [AWS Localstack CLI](https://docs.localstack.cloud/aws/)
+
 ## Korišćeni servisi i alati
 - Lambde (dohvatanje informacija o električnim punjačima i kafićima)
 - DynamoDB (čuvanje informacija o električnim punjačima širom Srbije)
